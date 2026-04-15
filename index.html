@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+               <meta charset="UTF-8" />
+               <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+               <title>ATMOS — Weather Intelligence</title>
+               <link rel="preconnect" href="https://fonts.googleapis.com" />
+               <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;900&family=Poppins:wght@300;400;500;600&display=swap"
+                              rel="stylesheet" />
+               <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="weather-default" id="appBody">
+
+               <div class="weather-canvas" id="weatherCanvas">
+                              <!-- Stars (night) -->
+                              <div class="stars-layer" id="starsLayer"></div>
+                              <!-- Rain layer -->
+                              <div class="rain-layer" id="rainLayer"></div>
+                              <!-- Snow layer -->
+                              <div class="snow-layer" id="snowLayer"></div>
+                              <!-- Cloud layer -->
+                              <div class="clouds-layer" id="cloudsLayer">
+                                             <div class="cloud cloud-1"></div>
+                                             <div class="cloud cloud-2"></div>
+                                             <div class="cloud cloud-3"></div>
+                                             <div class="cloud cloud-4"></div>
+                              </div>
+
+                              <div class="sun-wrap" id="sunWrap">
+                                             <div class="sun-rays"></div>
+                                             <div class="sun-core"></div>
+                                             <div class="sun-glow"></div>
+                              </div>
+
+                              <div class="moon-wrap" id="moonWrap">
+                                             <div class="moon-body"></div>
+                                             <div class="moon-glow"></div>
+                              </div>
+
+                              <div class="lightning-wrap" id="lightningWrap">
+                                             <div class="bolt bolt-1">⚡</div>
+                                             <div class="bolt bolt-2">⚡</div>
+                              </div>
+                              <!-- Wet-glass overlay for rain -->
+                              <div class="glass-overlay" id="glassOverlay"></div>
+               </div>
+
+
+               <div class="app" id="app">
+
+                              <header class="topbar">
+                                             <div class="logo">
+                                                            <span class="logo-mark">◈</span>
+                                                            <span class="logo-text">ATMOS</span>
+                                             </div>
+                                             <div class="topbar-actions">
+
+                                                            <div class="unit-toggle" id="unitToggle">
+                                                                           <button class="unit-btn active" id="btnC"
+                                                                                          data-unit="C">°C</button>
+                                                                           <button class="unit-btn" id="btnF"
+                                                                                          data-unit="F">°F</button>
+                                                            </div>
+
+                                                            <button class="icon-btn" id="themeBtn" title="Toggle theme">
+                                                                           <svg id="themeIco" viewBox="0 0 24 24"
+                                                                                          fill="none"
+                                                                                          stroke="currentColor"
+                                                                                          stroke-width="2" width="18"
+                                                                                          height="18">
+                                                                                          <circle cx="12" cy="12"
+                                                                                                         r="5" />
+                                                                                          <path
+                                                                                                         d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                                                                           </svg>
+                                                            </button>
+                                             </div>
+                              </header>
+
+                              <section class="search-section">
+                                             <div class="search-container">
+                                                            <div class="search-field" id="searchField">
+                                                                           <svg class="s-icon" viewBox="0 0 24 24"
+                                                                                          fill="none"
+                                                                                          stroke="currentColor"
+                                                                                          stroke-width="2.2" width="18"
+                                                                                          height="18">
+                                                                                          <circle cx="11" cy="11"
+                                                                                                         r="8" />
+                                                                                          <path d="m21 21-4.35-4.35" />
+                                                                           </svg>
+                                                                           <input type="text" id="cityInput"
+                                                                                          class="s-input"
+                                                                                          placeholder="Search city or location…"
+                                                                                          autocomplete="off"
+                                                                                          spellcheck="false" />
+                                                                           <button class="locate-btn" id="locateBtn"
+                                                                                          title="Detect my location">
+                                                                                          <svg viewBox="0 0 24 24"
+                                                                                                         fill="none"
+                                                                                                         stroke="currentColor"
+                                                                                                         stroke-width="2.2"
+                                                                                                         width="16"
+                                                                                                         height="16">
+                                                                                                         <circle cx="12" cy="12"
+                                                                                                                        r="3" />
+                                                                                                         <path
+                                                                                                                        d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+                                                                                          </svg>
+                                                                           </button>
+                                                            </div>
+                                                            <button class="search-btn" id="searchBtn">
+                                                                           Search
+                                                                           <svg viewBox="0 0 24 24" fill="none"
+                                                                                          stroke="currentColor"
+                                                                                          stroke-width="2.5" width="15"
+                                                                                          height="15">
+                                                                                          <path
+                                                                                                         d="M5 12h14M12 5l7 7-7 7" />
+                                                                           </svg>
+                                                            </button>
+                                             </div>
+
+                                             <div class="error-msg" id="errorBox" style="display:none">
+                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                                           stroke-width="2" width="14" height="14">
+                                                                           <path
+                                                                                          d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                                                                           <line x1="12" y1="9" x2="12" y2="13" />
+                                                                           <line x1="12" y1="17" x2="12.01" y2="17" />
+                                                            </svg>
+                                                            <span id="errorText">City not found.</span>
+                                             </div>
+                              </section>
+
+                              <div class="loader" id="loader" style="display:none">
+                                             <div class="loader-orb">
+                                                            <div class="lo-ring r1"></div>
+                                                            <div class="lo-ring r2"></div>
+                                                            <div class="lo-ring r3"></div>
+                                                            <div class="lo-core"></div>
+                                             </div>
+                                             <p class="loader-label">Reading the sky…</p>
+                              </div>
+
+                              <main class="weather-display" id="weatherDisplay" style="display:none">
+
+                                             <div class="hero-card glass-card">
+                                                            <div class="hero-top">
+                                                                           <div class="hero-left">
+                                                                                          <div class="location-row">
+                                                                                                         <svg viewBox="0 0 24 24"
+                                                                                                                        fill="none"
+                                                                                                                        stroke="currentColor"
+                                                                                                                        stroke-width="2"
+                                                                                                                        width="14"
+                                                                                                                        height="14"
+                                                                                                                        style="opacity:.7">
+                                                                                                                        <path
+                                                                                                                                       d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+                                                                                                                        <circle cx="12" cy="10"
+                                                                                                                                       r="3" />
+                                                                                                         </svg>
+                                                                                                         <span class="city-name"
+                                                                                                                        id="dispCity">—</span>
+                                                                                          </div>
+                                                                                          <div class="city-time"
+                                                                                                         id="dispTime">—
+                                                                                          </div>
+                                                                                          <div class="city-date"
+                                                                                                         id="dispDate">—
+                                                                                          </div>
+                                                                           </div>
+                                                                           <div class="hero-right">
+                                                                                          <img class="big-icon"
+                                                                                                         id="dispIcon"
+                                                                                                         src=""
+                                                                                                         alt="weather icon" />
+                                                                           </div>
+                                                            </div>
+
+                                                            <div class="temp-display">
+                                                                           <span class="temp-num" id="dispTemp">—</span>
+                                                                           <span class="temp-unit"
+                                                                                          id="dispUnit">°C</span>
+                                                            </div>
+
+                                                            <div class="condition-row">
+                                                                           <span class="cond-badge"
+                                                                                          id="dispCond">—</span>
+                                                                           <span class="feels-like" id="dispFeels">Feels
+                                                                                          like —</span>
+                                                            </div>
+
+                                                            <div class="hero-stats">
+                                                                           <div class="hstat">
+                                                                                          <svg viewBox="0 0 24 24"
+                                                                                                         fill="none"
+                                                                                                         stroke="currentColor"
+                                                                                                         stroke-width="2"
+                                                                                                         width="14"
+                                                                                                         height="14">
+                                                                                                         <path
+                                                                                                                        d="M12 22a7 7 0 007-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 007 7z" />
+                                                                                          </svg>
+                                                                                          <span
+                                                                                                         id="dispHumidity">—</span>
+                                                                                          <span
+                                                                                                         class="hstat-lbl">Humidity</span>
+                                                                           </div>
+                                                                           <div class="hstat-sep"></div>
+                                                                           <div class="hstat">
+                                                                                          <svg viewBox="0 0 24 24"
+                                                                                                         fill="none"
+                                                                                                         stroke="currentColor"
+                                                                                                         stroke-width="2"
+                                                                                                         width="14"
+                                                                                                         height="14">
+                                                                                                         <path
+                                                                                                                        d="M9.59 4.59A2 2 0 1111 8H2m10.59 11.41A2 2 0 1014 16H2m15.73-8.27A2.5 2.5 0 1119.5 12H2" />
+                                                                                          </svg>
+                                                                                          <span id="dispWind">—</span>
+                                                                                          <span
+                                                                                                         class="hstat-lbl">Wind</span>
+                                                                           </div>
+                                                                           <div class="hstat-sep"></div>
+                                                                           <div class="hstat">
+                                                                                          <svg viewBox="0 0 24 24"
+                                                                                                         fill="none"
+                                                                                                         stroke="currentColor"
+                                                                                                         stroke-width="2"
+                                                                                                         width="14"
+                                                                                                         height="14">
+                                                                                                         <path
+                                                                                                                        d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                                                                                         <circle cx="12" cy="12"
+                                                                                                                        r="3" />
+                                                                                          </svg>
+                                                                                          <span id="dispVisib">—</span>
+                                                                                          <span
+                                                                                                         class="hstat-lbl">Visibility</span>
+                                                                           </div>
+                                                                           <div class="hstat-sep"></div>
+                                                                           <div class="hstat">
+                                                                                          <svg viewBox="0 0 24 24"
+                                                                                                         fill="none"
+                                                                                                         stroke="currentColor"
+                                                                                                         stroke-width="2"
+                                                                                                         width="14"
+                                                                                                         height="14">
+                                                                                                         <circle cx="12" cy="12"
+                                                                                                                        r="10" />
+                                                                                                         <polyline
+                                                                                                                        points="12,6 12,12 16,14" />
+                                                                                          </svg>
+                                                                                          <span
+                                                                                                         id="dispPressure">—</span>
+                                                                                          <span
+                                                                                                         class="hstat-lbl">Pressure</span>
+                                                                           </div>
+                                                            </div>
+                                             </div>
+
+                                             <div class="sun-card glass-card">
+                                                            <div class="sun-card-inner">
+                                                                           <div class="sun-info">
+                                                                                          <span
+                                                                                                         class="sun-ico">🌅</span>
+                                                                                          <span class="sun-val"
+                                                                                                         id="dispSunrise">—</span>
+                                                                                          <span
+                                                                                                         class="sun-lbl">Sunrise</span>
+                                                                           </div>
+                                                                           <div class="sun-arc-wrap">
+                                                                                          <svg class="sun-arc-svg"
+                                                                                                         viewBox="0 0 200 80"
+                                                                                                         preserveAspectRatio="none">
+                                                                                                         <defs>
+                                                                                                                        <linearGradient id="arcGrad"
+                                                                                                                                       x1="0%"
+                                                                                                                                       y1="0%"
+                                                                                                                                       x2="100%"
+                                                                                                                                       y2="0%">
+                                                                                                                                       <stop offset="0%"
+                                                                                                                                                      stop-color="#f59e0b"
+                                                                                                                                                      stop-opacity="0.3" />
+                                                                                                                                       <stop offset="50%"
+                                                                                                                                                      stop-color="#f59e0b"
+                                                                                                                                                      stop-opacity="0.9" />
+                                                                                                                                       <stop offset="100%"
+                                                                                                                                                      stop-color="#ef4444"
+                                                                                                                                                      stop-opacity="0.3" />
+                                                                                                                        </linearGradient>
+                                                                                                         </defs>
+                                                                                                         <path d="M10,75 Q100,-20 190,75"
+                                                                                                                        fill="none"
+                                                                                                                        stroke="url(#arcGrad)"
+                                                                                                                        stroke-width="2"
+                                                                                                                        stroke-dasharray="4,3" />
+                                                                                                         <!-- Sun position marker -->
+                                                                                                         <circle id="arcMarker"
+                                                                                                                        cx="100"
+                                                                                                                        cy="27"
+                                                                                                                        r="5"
+                                                                                                                        fill="#f59e0b"
+                                                                                                                        filter="url(#sunGlow)" />
+                                                                                                         <defs>
+                                                                                                                        <filter
+                                                                                                                                       id="sunGlow">
+                                                                                                                                       <feGaussianBlur stdDeviation="3"
+                                                                                                                                                      result="blur" />
+                                                                                                                                       <feMerge>
+                                                                                                                                                      <feMergeNode
+                                                                                                                                                                     in="blur" />
+                                                                                                                                                      <feMergeNode
+                                                                                                                                                                     in="SourceGraphic" />
+                                                                                                                                       </feMerge>
+                                                                                                                        </filter>
+                                                                                                         </defs>
+                                                                                          </svg>
+                                                                           </div>
+                                                                           <div class="sun-info sun-info-r">
+                                                                                          <span
+                                                                                                         class="sun-ico">🌇</span>
+                                                                                          <span class="sun-val"
+                                                                                                         id="dispSunset">—</span>
+                                                                                          <span
+                                                                                                         class="sun-lbl">Sunset</span>
+                                                                           </div>
+                                                            </div>
+                                             </div>
+
+                              </main>
+
+                              <section class="history-section" id="histSection" style="display:none">
+                                             <div class="history-head">
+                                                            <span class="history-label">
+                                                                           <span class="live-dot"></span>Recent
+                                                            </span>
+                                                            <button class="clear-btn" id="clearBtn">Clear</button>
+                                             </div>
+                                             <div class="history-chips" id="histList"></div>
+                              </section>
+
+               </div>
+
+               <script src="script.js"></script>
+</body>
+
+</html>
